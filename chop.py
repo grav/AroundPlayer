@@ -2,7 +2,6 @@
 # encoding: utf=8
 
 import echonest.audio as audio
-import numpy as np
 
 PATH = "/Users/grav/Desktop/"
 INPUT = PATH+ "around.mp3"

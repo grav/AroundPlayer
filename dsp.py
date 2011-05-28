@@ -1,8 +1,12 @@
+import numpy as np
+
 class DSP:
 
     def __init__(self,audioFile,chunk):
 
         self.signal=monoSignal(audioFile,chunk)
+
+        # todo - compute spectrum
         self.chunk=chunk
 
     def peak(self):
@@ -21,7 +25,7 @@ class DSP:
         self.chunk.peak = self.peak()
         self.chunk.hf = self.hf()
         self.chunk.lf = self.lf()
-        return chunk
+        return self.chunk
 
 
 def monoSignal(audioFile,chunk):
