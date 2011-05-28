@@ -1,5 +1,7 @@
 import numpy as np
 
+CHUNK=256
+WINDOW = np.blackman(CHUNK)
 class DSP:
 
     def __init__(self,audioFile,chunk):
@@ -8,6 +10,22 @@ class DSP:
 
         # todo - compute spectrum
         self.chunk=chunk
+
+    def spectrum(self):
+        nZeros = CHUNK - self.signal.size % CHUNK
+        padded = np.hstack([self.signal, np.zeros(nZeros)])
+        # frames are rows
+        reshaped = padded.reshape(CHUNK,padded.size/CHUNK)
+        # apply window to each frame
+        reshaped = np.apply_along_axis(lambda x: x*WINDOW, 1, reshaped)
+        # do fft on each row
+        S = np.fft.rfft(reshaped)
+        # get power spectrum
+        SPow = abs(S)**2
+        # calc mean for each bucket - 0 is column axis
+        self.spec = SPow.mean(0)
+        # remove DC offset
+        self.spec[0]==0
 
     def peak(self):
         return self.arr.max
