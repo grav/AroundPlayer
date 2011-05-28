@@ -30,13 +30,17 @@ class DSP:
     def peak(self):
         return self.arr.max
 
+    def halfIndex(self):
+        return int(len(self.spec)/2)
+
+
     def hf(self):
         # todo: do hfc on arr and return avg of higher half
-        return -1
+        return np.sum(self.spec[halfIndex():])/halfIndex()
 
     def lf(self):
         # todo: return avg of lower half
-        return -1
+        return np.sum(self.spec[:halfIndex()])/halfIndex()
 
     def apply(self):
         # todo: apply all analyses on chunk
@@ -45,6 +49,9 @@ class DSP:
         self.chunk.lf = self.lf()
         return self.chunk
 
+    def hfc(self,a=1):
+        l=len(self.spec)
+        return self.spec*linspace(0,l-1,l)**a
 
 def monoSignal(audioFile,chunk):
     audioChunk = audio.getpieces(audioFile,[chunk])
