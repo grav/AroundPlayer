@@ -8,3 +8,6 @@ def lf(x):
 
 def peak(x):
     return x.peak
+
+def energy(x):
+    return x.energy

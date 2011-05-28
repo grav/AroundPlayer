@@ -1,4 +1,5 @@
 import numpy as np
+import echonest.audio as audio
 
 CHUNK=256
 WINDOW = np.blackman(CHUNK)
@@ -10,12 +11,13 @@ class DSP:
 
         # todo - compute spectrum
         self.chunk=chunk
+        self.calcSpectrum()
 
-    def spectrum(self):
+    def calcSpectrum(self):
         nZeros = CHUNK - self.signal.size % CHUNK
         padded = np.hstack([self.signal, np.zeros(nZeros)])
         # frames are rows
-        reshaped = padded.reshape(CHUNK,padded.size/CHUNK)
+        reshaped = padded.reshape(padded.size/CHUNK,CHUNK)
         # apply window to each frame
         reshaped = np.apply_along_axis(lambda x: x*WINDOW, 1, reshaped)
         # do fft on each row
@@ -28,30 +30,35 @@ class DSP:
         self.spec[0]==0
 
     def peak(self):
-        return self.arr.max
+        return self.signal.max
+
+    def energy(self):
+        return self.spec.sum()
 
     def halfIndex(self):
         return int(len(self.spec)/2)
 
 
     def hf(self):
-        # todo: do hfc on arr and return avg of higher half
-        return np.sum(self.spec[halfIndex():])/halfIndex()
+        i=self.halfIndex()
+        hfc=self.hfc()
+        return np.sum(hfc[i:])/i
 
     def lf(self):
-        # todo: return avg of lower half
-        return np.sum(self.spec[:halfIndex()])/halfIndex()
+        i=self.halfIndex()
+        return np.sum(self.spec[:i])/i
+
+    def hfc(self,a=1):
+        l=len(self.spec)
+        return self.spec*np.linspace(0,l-1,l)**a
 
     def apply(self):
         # todo: apply all analyses on chunk
         self.chunk.peak = self.peak()
         self.chunk.hf = self.hf()
         self.chunk.lf = self.lf()
+        self.chunk.energy = self.energy()
         return self.chunk
-
-    def hfc(self,a=1):
-        l=len(self.spec)
-        return self.spec*linspace(0,l-1,l)**a
 
 def monoSignal(audioFile,chunk):
     audioChunk = audio.getpieces(audioFile,[chunk])
