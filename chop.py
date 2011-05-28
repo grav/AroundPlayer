@@ -22,13 +22,6 @@ def saveChunks(audioFile):
         print "writing %d of %d" % (i+1,n)
         saveChunk(audioFile,chunks[i],i)
 
-def monoSignal(audioFile,chunk):
-    audioChunk = audio.getpieces(audioFile,[chunk])
-    arr = audioChunk.data
-    if arr.ndim==2:
-        return arr.mean(1)
-    return arr
-
 
 peakScore = {}
 
