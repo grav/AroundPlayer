@@ -9,15 +9,18 @@ class DSP:
         return self.arr.max
 
     def hf(self):
-        # do hfc on arr and return avg of higher half
-        pass
+        # todo: do hfc on arr and return avg of higher half
+        return -1
 
     def lf(self):
-        # return avg of lower half
-        pass
+        # todo: return avg of lower half
+        return -1
 
     def apply(self):
         # todo: apply all analyses on chunk
+        self.chunk.peak = self.peak()
+        self.chunk.hf = self.hf()
+        self.chunk.lf = self.lf()
         return chunk
 
 
