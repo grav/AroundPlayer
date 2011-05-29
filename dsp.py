@@ -72,15 +72,15 @@ class DSP:
         return self.spec.sum()
 
     def halfIndex(self):
-        return int(len(self.spec)/2)
+        return int(len(self.spec)/2.0)
 
     def hf(self):
-        i=self.halfIndex()
+        i=int(len(self.spec)*(2/3.0))
         hfc=self.hfc()
-        return np.sum(hfc[i:])/i
+        return np.sum(hfc[-i:])/i
 
     def lf(self):
-        i=self.halfIndex()
+        i=int(len(self.spec)*(1/3.0))
         return np.sum(self.spec[:i])/i
 
     def hfc(self,a=1):
