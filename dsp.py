@@ -12,6 +12,8 @@ class DSP:
         # todo - compute spectrum
         self.chunk=chunk
         self.calcSpectrum()
+        self._centroid=None
+        self._spread=None
 
     def calcSpectrum(self):
         nZeros = CHUNK - self.signal.size % CHUNK
@@ -29,6 +31,40 @@ class DSP:
         # remove DC offset
         self.spec[0]==0
 
+    def spread(self):
+        if self._spread:
+            return self._spread
+        else:
+            sum = self.spec.sum()
+            self._spread = 0
+            centroid = self.centroid()
+            for i in range(0,len(self.spec)):
+                x=self.spec[i]
+                p=x/sum
+                self._spread += (x-centroid)**2*p
+            return self._spread
+
+
+    def centroid(self):
+        if self._centroid:
+            return self._centroid
+        else:
+            a=0
+            for i in range(0,len(self.spec)):
+                a=i*self.spec[i]
+            self._centroid = a/self.spec.sum()
+            return self._centroid
+
+    def kurtosis(self):
+        sum = self.spec.sum()
+        moment = 0
+        centroid = self.centroid()
+        for i in range(0,len(self.spec)):
+            x=self.spec[i]
+            p=x/sum
+            moment+=(x-centroid)**4*p
+        return moment/(self.spread()**2)
+
     def peak(self):
         return self.signal.max
 
@@ -37,7 +73,6 @@ class DSP:
 
     def halfIndex(self):
         return int(len(self.spec)/2)
-
 
     def hf(self):
         i=self.halfIndex()
@@ -58,6 +93,7 @@ class DSP:
         self.chunk.hf = self.hf()
         self.chunk.lf = self.lf()
         self.chunk.energy = self.energy()
+        self.chunk.kurtosis = self.kurtosis()
         return self.chunk
 
 def monoSignal(audioFile,chunk):

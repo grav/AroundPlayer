@@ -2,37 +2,46 @@
 # encoding: utf=8
 
 import echonest.audio as audio
+from extraSorting import *
+import sys
+import os
 from dsp import *
 
-PATH = "/Users/grav/Desktop/"
-INPUT = PATH+ "stravinsky.m4a"
-MAX_CHUNKS = 20
-# WINDOW = np.blackman(chunk)
+INPUT = sys.argv[1]
 
-def saveChunk(audioFile,chunk,chunkId):
-    audioChunk = audio.getpieces(audioFile,[chunk])
-    tmpFile = PATH + "chunks/chunk_"+"%03d" %chunkId +".wav"
-    audioChunk.encode(tmpFile)
+class Chop:
 
-def saveChunks(audioFile):
-    chunks = audioFile.analysis.segments
-    n = min(MAX_CHUNKS ,len(chunks))
+    def __init__(self,filename):
+        self.filename=filename
+        self.audioFile = audio.LocalAudioFile(self.filename)
+        chunks = self.audioFile.analysis.segments
+        print "calculating chunks"
+        self.chunks = audio.AudioQuantumList(map(lambda c: self.analyze(c), chunks))
 
-    for i in range(0,n):
-        print "writing %d of %d" % (i+1,n)
-        saveChunk(audioFile,chunks[i],i)
+    def saveChunk(self,chunk,chunkId):
+        audioChunk = audio.getpieces(audioFile,[chunk])
+        dir = self.filename + "_chunks"
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        tmpFile = dir+"/chunk_" + chunkId +".wav"
+        audioChunk.encode(tmpFile)
+
+    def saveChunks(self,chunks,prefix=""):
+        n = min(MAX_CHUNKS ,len(chunks))
+
+        for i in range(0,n):
+            print "writing %d of %d" % (i+1,n)
+            saveChunk(chunks[i],"%s%03d"%(prefix,i))
 
 
-def analyze(audioFile,chunk):
-    d=DSP(audioFile,chunk)
-    d.apply()
-    return d.chunk
+    def analyze(self,chunk):
+        d=DSP(self.audioFile,chunk)
+        d.apply()
+        return d.chunk
 
-peakScore = {}
+    def output(self,fn,prefix):
+        out=audio.getpieces(self.audioFile,self.chunks.ordered_by(fn))
+        out.encode(self.filename+"_"+prefix+".wav")
 
-# 
-audioFile = audio.LocalAudioFile(INPUT)
-chunks = audioFile.analysis.segments
-superChunks = audio.AudioQuantumList(map(lambda c: analyze(audioFile,c), chunks))
 
 

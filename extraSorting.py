@@ -11,3 +11,6 @@ def peak(x):
 
 def energy(x):
     return x.energy
+
+def kurtosis(x):
+    return x.kurtosis
